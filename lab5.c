@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
-//#include <conio.h>
 #include <math.h>
 
 #define n 11
@@ -12,6 +11,7 @@
 #define n4 1
 
 #define PI 3.14159265359
+
 
 double** randm()
 {
@@ -49,31 +49,11 @@ int** mulmr(double coefficient, double **matrix)
     return resulting_matrix;
 }
 
-int** mirror_matrix(int** matrix)
+void print_matrix(int** matrix, int size)
 {
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < size; i++)
     {
-        for (int j = 0; j < n; j++)
-        {
-            if (
-                    matrix[i][j] == 1
-                    && matrix[j][i] != 1
-                    && i != j
-                    )
-            {
-                matrix[j][i] = 1;
-            }
-        }
-    }
-
-    return matrix;
-}
-
-void print_matrix(int** matrix)
-{
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
+        for (int j = 0; j < size; j++)
         {
             printf("%d ", matrix[i][j]);
         }
@@ -82,11 +62,12 @@ void print_matrix(int** matrix)
     printf("\n");
 }
 
-void free_int_matrix(int** matrix)
+void free_int_matrix(int** matrix, int size)
 {
-    for (int i = 0; i < n; i++) free(matrix[i]);
+    for (int i = 0; i < size; i++) free(matrix[i]);
     free(matrix);
 }
+
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -98,7 +79,8 @@ const int window_height = 750;
 const int radius = 0.4 * window_height; //radius of the main arrangement
 
 const int r = 16; //radius of a small circle with number
-const int shift = 5; //for a printing numbers correction
+const int shift = 5; //for printing numbers correction
+
 
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
@@ -123,17 +105,19 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
     if (!RegisterClass(&w)) return 0;
 
-    hWnd = CreateWindow(ProgName, //Ім'я програми
-                        "Laboratorna robota 3. Vykonav Kravchenko V. O.", //заголовок
-                        WS_OVERLAPPEDWINDOW, //стиль вікна - комплексний1
-                        269, //положення верхнього кута вікна на екрані по х
-                        0, // положення верхнього кута вікна на екрані по y
-                        window_width, //ширина вікна
-                        window_height, //висота вікна
-                        (HWND)NULL, // ідентифікатор породжуючого вікна
-                        (HMENU)NULL, //ідентифікатор меню (немає)
-                        (HINSTANCE)hInstance, //ідентифікатор екземпляра вікна
-                        (HINSTANCE)NULL); // додаткові параметри відсутні
+    hWnd = CreateWindow(
+            ProgName, //Ім'я програми
+            "Laboratorna robota 3. Vykonav Kravchenko V. O.", //заголовок
+            WS_OVERLAPPEDWINDOW, //стиль вікна - комплексний1
+            269, //положення верхнього кута вікна на екрані по х
+            0, // положення верхнього кута вікна на екрані по y
+            window_width, //ширина вікна
+            window_height, //висота вікна
+            (HWND)NULL, // ідентифікатор породжуючого вікна
+            (HMENU)NULL, //ідентифікатор меню (немає)
+            (HINSTANCE)hInstance, //ідентифікатор екземпляра вікна
+            (HINSTANCE)NULL
+    ); // додаткові параметри відсутні
 
     ShowWindow(hWnd, nCmdShow);
 
@@ -280,7 +264,7 @@ void draw_graph(HWND hWnd, int** matrix, int radius, int x_center, int y_center)
     }
 }
 
-void mark_vertex(HWND hWnd, int vertex, int R, int G, int B)
+void recolor_vertex(HWND hWnd, int vertex, int R, int G, int B)
 {
     int x = nx[vertex];
     int y = ny[vertex];
@@ -307,95 +291,14 @@ void mark_vertex(HWND hWnd, int vertex, int R, int G, int B)
     free(nn);
 }
 
-void highlight_vertex(HWND hWnd, int vertex)
-{
-    int x = nx[vertex];
-    int y = ny[vertex];
-
-    HPEN GPen = CreatePen(PS_SOLID, 2, RGB(200, 200, 100));
-    SelectObject(hdc, GPen);
-
-    Ellipse(
-            hdc,
-            x - r,
-            y - r,
-            x + r,
-            y + r
-    );
-    char* nn = malloc(2 * sizeof(char*));
-    sprintf(nn, "%d", vertex + 1);
-    TextOut(
-            hdc,
-            x - shift,
-            y - r / 2,
-            nn,
-            2
-    );
-    free(nn);
-}
-
-void mark_vertex_as_visited(HWND hWnd, int vertex)
-{
-    int x = nx[vertex];
-    int y = ny[vertex];
-
-    HPEN GPen = CreatePen(PS_SOLID, 2, RGB(100, 100, 100));
-    SelectObject(hdc, GPen);
-
-    Ellipse(
-            hdc,
-            x - r,
-            y - r,
-            x + r,
-            y + r
-    );
-    char* nn = malloc(2 * sizeof(char*));
-    sprintf(nn, "%d", vertex + 1);
-    TextOut(
-            hdc,
-            x - shift,
-            y - r / 2,
-            nn,
-            2
-    );
-    free(nn);
-}
-
-void mark_vertex_as_reeximined(HWND hWnd, int vertex)
-{
-    int x = nx[vertex];
-    int y = ny[vertex];
-
-    HPEN GPen = CreatePen(PS_SOLID, 2, RGB(6, 200, 9));
-    SelectObject(hdc, GPen);
-
-    Ellipse(
-            hdc,
-            x - r,
-            y - r,
-            x + r,
-            y + r
-    );
-    char* nn = malloc(2 * sizeof(char*));
-    sprintf(nn, "%d", vertex + 1);
-    TextOut(
-            hdc,
-            x - shift,
-            y - r / 2,
-            nn,
-            2
-    );
-    free(nn);
-}
-
 void highlight_connection(HWND hWnd, int first_vertex, int second_vertex)
 {
     HPEN GPen = CreatePen(PS_SOLID, 1, RGB(200, 200, 100));
-
     SelectObject(hdc, GPen);
 
     line(first_vertex, second_vertex);
 }
+
 
 struct Node
 {
@@ -404,11 +307,17 @@ struct Node
     struct Node* prev; // Pointer to previous node in DLL
 };
 
-void free_list_memory(struct Node* list)
+/*void free_list_memory_recursive(struct Node* element)
 {
-    if (list->next != NULL) free_list_memory(list->next);
-    free(list);
+    if (element->next != NULL) free_list_memory_recursive(element->next);
+    free(element);
 }
+
+void free_list_memory(struct Node* element)
+{
+    while (element->prev) element = element->prev;
+    free_list_memory_recursive(element);
+}*/
 
 void add(struct Node** head_ref, int new_data)
 {
@@ -477,15 +386,16 @@ int detect_element_in_list(struct Node* element, int desired)
         }
         node = node->prev;
     }
+
     printf("element %d not detected in the queue\n", desired + 1);
     free(node);
     return 0;
 }
 
+
 int** breadth_first_search(HWND hWnd, int **matrix)
 {
-    SetConsoleTextAttribute(GetStdHandle (STD_OUTPUT_HANDLE),
-                            FOREGROUND_GREEN | FOREGROUND_RED);
+    SetConsoleTextAttribute(GetStdHandle (STD_OUTPUT_HANDLE), FOREGROUND_GREEN);
     printf("\nbfs started, \n");
 
     int output[n] = {};
@@ -504,13 +414,10 @@ int** breadth_first_search(HWND hWnd, int **matrix)
 
     output[0] = 0;
     add(&my_queue, 0); // ads 0 vertex to the queue
-    //my_queue = my_queue->next;
-    //&my_queue = new_node;
     visited[0] = 0;
 
     if (my_queue == NULL) printf("ffffffffuck\n\n");
 
-    //for (int i = 0; i < n; i++)
     int noe = 1; //number of output elements
     for (int counter = 0; my_queue != NULL; counter++)
     {
@@ -521,13 +428,14 @@ int** breadth_first_search(HWND hWnd, int **matrix)
                 MB_OK))
         {
 
-            SetConsoleTextAttribute(GetStdHandle (STD_OUTPUT_HANDLE), FOREGROUND_GREEN);
+            SetConsoleTextAttribute(GetStdHandle (STD_OUTPUT_HANDLE),
+                                    FOREGROUND_GREEN | FOREGROUND_RED);
             printf("\nexamined vertex is %d\n", my_queue->data + 1);
             SetConsoleTextAttribute(GetStdHandle (STD_OUTPUT_HANDLE),
                                     FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
 
-            mark_vertex(hWnd, my_queue->data, 200, 200, 100);
-            if (my_queue->next != NULL) mark_vertex(hWnd, my_queue->next->data, 100, 100, 100);
+            recolor_vertex(hWnd, my_queue->data, 200, 200, 100);
+            if (my_queue->next != NULL) recolor_vertex(hWnd, my_queue->next->data, 100, 100, 100);
         }
         for (int j = 0; j < n; j++)
         {
@@ -564,7 +472,7 @@ int** breadth_first_search(HWND hWnd, int **matrix)
 int** depth_first_search(HWND hWnd, int **matrix)
 {
     SetConsoleTextAttribute(GetStdHandle (STD_OUTPUT_HANDLE),
-                            FOREGROUND_GREEN | FOREGROUND_RED);
+                            FOREGROUND_GREEN);
     printf("\n\ndfs started, \n");
 
     int** search_tree = (int**)malloc(n * sizeof(int*));
@@ -578,7 +486,6 @@ int** depth_first_search(HWND hWnd, int **matrix)
     }
 
     int output[n] = {};
-    //int queue[n] = {};
     struct Node* my_stack = NULL;
     int visited[n] = {};
 
@@ -597,15 +504,22 @@ int** depth_first_search(HWND hWnd, int **matrix)
                 "BUTTON",
                 MB_OK))
         {
-            SetConsoleTextAttribute(GetStdHandle (STD_OUTPUT_HANDLE), FOREGROUND_GREEN);
+            SetConsoleTextAttribute(GetStdHandle (STD_OUTPUT_HANDLE),
+                                    FOREGROUND_GREEN  | FOREGROUND_RED);
             printf("\nexamined vertex is %d\n", my_stack->data + 1);
             SetConsoleTextAttribute(GetStdHandle (STD_OUTPUT_HANDLE),
                                     FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
 
-            if (my_stack->prev == NULL) mark_vertex(hWnd, my_stack->data, 200, 200, 100);
-            else mark_vertex(hWnd, my_stack->data, 6, 200, 9);
-
-            if (my_stack->next != NULL) mark_vertex(hWnd, my_stack->next->data, 100, 100, 100);
+            if (my_stack->prev == NULL)
+            {
+                recolor_vertex(hWnd, my_stack->data, 200, 200, 100);
+                if (my_stack->next != NULL) recolor_vertex(hWnd, my_stack->next->data, 100, 100, 100);
+            }
+            else
+            {
+                recolor_vertex(hWnd, my_stack->data, 6, 200, 9);
+                recolor_vertex(hWnd, my_stack->prev->data, 100, 100, 100);
+            }
         }
         for (int j = 0; j < n; j++)
         {
@@ -647,6 +561,7 @@ int** depth_first_search(HWND hWnd, int **matrix)
     return search_tree;
 }
 
+
 LRESULT CALLBACK WndProc(
         HWND hWnd,
         UINT messg,
@@ -665,14 +580,7 @@ LRESULT CALLBACK WndProc(
             A = mulmr(( 1.0 - n3 * 0.01 - n4 * 0.005 - 0.15), T);
 
             printf("adjacency matrix is:\n");
-            for (int i = 0; i < n; i++)
-            {
-                for (int j = 0; j < n; j++)
-                {
-                    printf("%d ", A[i][j]);
-                }
-                printf("\n"); //transition to a next row
-            }
+            print_matrix(A, n);
 
             hdc = BeginPaint(hWnd, &ps);
             draw_graph(hWnd, A, radius, window_width / 3, window_height / 2);
@@ -714,7 +622,7 @@ LRESULT CALLBACK WndProc(
 
             for (int i = 0; i < n; i++) free(T[i]);
             free(T);
-            
+
             for (int i = 0; i < n; i++) free(A[i]);
             free(A);
 
