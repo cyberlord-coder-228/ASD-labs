@@ -107,7 +107,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
     hWnd = CreateWindow(
             ProgName, //Ім'я програми
-            "Laboratorna robota 3. Vykonav Kravchenko V. O.", //заголовок
+            "Laboratorna robota 5. Vykonav Kravchenko V. O.", //заголовок
             WS_OVERLAPPEDWINDOW, //стиль вікна - комплексний1
             269, //положення верхнього кута вікна на екрані по х
             0, // положення верхнього кута вікна на екрані по y
